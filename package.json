@@ -1,0 +1,60 @@
+{
+  "name": "krome",
+  "version": "0.0.0",
+  "description": "A collection of useful abstractions on top of the Chrome Platform APIs",
+  "license": "MIT",
+  "repository": "kasperisager/krome",
+  "author": "Kasper Kronborg Isager <kasperisager@gmail.com>",
+  "scripts": {
+    "test": "xo && nyc ava",
+    "coverage": "nyc report --reporter=html",
+    "coveralls": "nyc report --reporter=text-lcov | coveralls",
+    "transpile": "babel lib -d dist",
+    "prepublish": "npm run transpile"
+  },
+  "main": "dist/index.js",
+  "jsnext:main": "lib/index.js",
+  "files": [
+    "dist",
+    "lib"
+  ],
+  "keywords": [
+    "chrome",
+    "abstraction",
+    "channel",
+    "event",
+    "devtools",
+    "es6"
+  ],
+  "devDependencies": {
+    "ava": "^0.18.1",
+    "babel-cli": "^6.22.2",
+    "babel-preset-es2015": "^6.22.0",
+    "babel-register": "^6.22.0",
+    "nyc": "^10.1.2",
+    "sinon": "^1.17.7",
+    "sinon-chrome": "^2.1.3",
+    "xo": "^0.17.1"
+  },
+  "ava": {
+    "verbose": true,
+    "require": [
+      "babel-register",
+      "./test/helpers/chrome"
+    ]
+  },
+  "babel": {
+    "presets": [
+      "es2015"
+    ]
+  },
+  "xo": {
+    "space": true,
+    "global": [
+      "chrome"
+    ],
+    "envs": [
+      "browser"
+    ]
+  }
+}
