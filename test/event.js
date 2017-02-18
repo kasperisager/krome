@@ -139,21 +139,3 @@ test.serial('off() does nothing if detaching an already detached listener', asyn
 
   t.is(listener.callCount, 0);
 });
-
-test.serial('clear() detaches all listeners for an event', async t => {
-  const listener1 = spy();
-  const listener2 = spy();
-  const listener3 = spy();
-
-  on('foo', listener1);
-  on('foo', listener2);
-  on('baz', listener3);
-  clear('foo');
-
-  await dispatch('foo', 'bar');
-  await dispatch('baz', 'bar');
-
-  t.is(listener1.callCount, 0);
-  t.is(listener2.callCount, 0);
-  t.is(listener3.callCount, 1);
-});
