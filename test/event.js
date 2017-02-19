@@ -1,14 +1,14 @@
 import test from 'ava';
 import {spy, stub} from 'sinon';
-import {on, once, emit, off, clear} from '../lib/event';
+import {on, once, emit, off, NAMESPACE} from '../lib/event';
 
 async function dispatch(event, payload) {
+  event = `${NAMESPACE}/${event}`;
+
   return new Promise(resolve =>
     chrome.runtime.onMessage.dispatch({event, payload}, 'sender', resolve)
   );
 }
-
-test.beforeEach(() => clear('foo'));
 
 test.serial('emit() emits a runtime event with a payload', async t => {
   chrome.runtime.sendMessage.callsArgWith(1, 'barbaz');
@@ -17,7 +17,7 @@ test.serial('emit() emits a runtime event with a payload', async t => {
 
   t.true(
     chrome.runtime.sendMessage
-      .withArgs({event: 'foo', payload: 'bar'})
+      .withArgs({event: `${NAMESPACE}/foo`, payload: 'bar'})
       .calledOnce
   );
 });
@@ -29,7 +29,7 @@ test.serial('emit() emits a tab event with a payload', async t => {
 
   t.true(
     chrome.tabs.sendMessage
-      .withArgs(1, {event: 'foo', payload: 'bar'})
+      .withArgs(1, {event: `${NAMESPACE}/foo`, payload: 'bar'})
       .calledOnce
   );
 });
@@ -42,6 +42,8 @@ test.serial('on() attaches an event listener', async t => {
   await dispatch('foo', 'bar');
 
   t.true(listener.withArgs('bar', 'sender').calledOnce);
+
+  off('foo', listener);
 });
 
 test.serial('on() support multiple event listeners for the same event', async t => {
@@ -55,6 +57,9 @@ test.serial('on() support multiple event listeners for the same event', async t 
 
   t.true(listener1.withArgs('bar', 'sender').calledOnce);
   t.true(listener2.withArgs('bar', 'sender').calledOnce);
+
+  off('foo', listener1);
+  off('foo', listener2);
 });
 
 test.serial('on() supports single responses from a single listener', async t => {
@@ -64,6 +69,8 @@ test.serial('on() supports single responses from a single listener', async t => 
 
   t.is(await dispatch('foo', 'bar'), 'baz');
   t.true(listener.withArgs('bar', 'sender').calledOnce);
+
+  off('foo', listener);
 });
 
 test.serial('on() supports single responses from a single of multiple listeners', async t => {
@@ -76,6 +83,9 @@ test.serial('on() supports single responses from a single of multiple listeners'
   t.is(await dispatch('foo', 'bar'), 'baz');
   t.true(listener1.withArgs('bar', 'sender').calledOnce);
   t.true(listener2.withArgs('bar', 'sender').calledOnce);
+
+  off('foo', listener1);
+  off('foo', listener2);
 });
 
 test.serial('on() supports multiple responses from multiple listeners', async t => {
@@ -88,6 +98,9 @@ test.serial('on() supports multiple responses from multiple listeners', async t 
   t.deepEqual(await dispatch('foo', 'bar'), ['baz', 'fez']);
   t.true(listener1.withArgs('bar', 'sender').calledOnce);
   t.true(listener2.withArgs('bar', 'sender').calledOnce);
+
+  off('foo', listener1);
+  off('foo', listener2);
 });
 
 test.serial('on() supports responding with promises', async t => {
@@ -97,6 +110,8 @@ test.serial('on() supports responding with promises', async t => {
 
   t.is(await dispatch('foo', 'bar'), 'baz');
   t.true(listener.withArgs('bar', 'sender').calledOnce);
+
+  off('foo', listener);
 });
 
 test.serial('once() attaches an event listener that is invoked at most once', async t => {
