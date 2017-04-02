@@ -3,7 +3,7 @@ import {spy} from 'sinon';
 import {on, once, emit, off, NAMESPACE} from '../lib/event';
 
 function dispatch(event, payload) {
-  chrome.runtime.onMessage.addListener.callArgWith(0, {event: `${NAMESPACE}/${event}`, payload}, 'sender');
+  chrome.runtime.onMessage.addListener.callArgWith(0, {event: `${NAMESPACE}/${event}`, payload}, {});
 }
 
 test.serial('emit() emits a runtime event with a payload', async t => {
@@ -23,7 +23,7 @@ test.serial('on() attaches an event listener', async t => {
 
   dispatch('foo', 'bar');
 
-  t.true(listener.withArgs('bar', 'sender').calledOnce);
+  t.true(listener.withArgs('bar').calledOnce);
 
   off('foo', listener);
 });
@@ -37,8 +37,8 @@ test.serial('on() support multiple event listeners for the same event', async t 
 
   dispatch('foo', 'bar');
 
-  t.true(listener1.withArgs('bar', 'sender').calledOnce);
-  t.true(listener2.withArgs('bar', 'sender').calledOnce);
+  t.true(listener1.withArgs('bar').calledOnce);
+  t.true(listener2.withArgs('bar').calledOnce);
 
   off('foo', listener1);
   off('foo', listener2);
@@ -53,7 +53,7 @@ test.serial('once() attaches an event listener that is invoked at most once', as
   dispatch('foo', 'bar');
   dispatch('foo', 'bar');
 
-  t.true(listener.withArgs('bar', 'sender').calledOnce);
+  t.true(listener.withArgs('bar').calledOnce);
 });
 
 test.serial('once() optionally returns a promise if no listener is specified', async t => {
